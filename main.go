@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net"
 	"log"
 	"bufio"
 
@@ -18,19 +17,19 @@ func main() {
 	log.Fatalf("Listening: %s", s.ListenAndServe())
 }
 
-func handleRequest(conn net.Conn) {
-	r := bufio.NewReader(conn)
+func handleRequest(ctx *server.TcportContext) {
+	r := bufio.NewReader(ctx.Conn)
 	scan := bufio.NewScanner(r)
 
 	for scan.Scan() {
 		if err := scan.Err(); err != nil {
 			log.Printf("Read request: %s", err)
-			conn.Write([]byte("Request error"))
+			ctx.Conn.Write([]byte("Request error"))
 			break
 		}
-		conn.Write(append([]byte("Received request: "), scan.Bytes()...))
-		conn.Write([]byte("\n"))
+		ctx.Conn.Write(append([]byte("Received request: "), scan.Bytes()...))
+		ctx.Conn.Write([]byte("\n"))
 	}
 
-	conn.Close()
+	ctx.Conn.Close()
 }
